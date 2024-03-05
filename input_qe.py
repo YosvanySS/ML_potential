@@ -16,7 +16,7 @@ import math as mt
 '-----------------------------------'
 class QEWriter:
     '-----------------------------------------------------------------------'
-    # Initializing the variables
+    # Initializing the instances
     def __init__(self, qe_file_name, nat, vect_matr, atm_names, pos_matr_ang, machine, pseudo_cluster, pseudo_local, forc_conv_thr, nstep, nspin, ecutwfc, ecutrho, conv_thr, mixing_beta, dk, units):
         self.qe_file_name   = qe_file_name
         self.nat            = nat
@@ -197,8 +197,9 @@ class QEWriter:
                     file_qe.write("{0:2} {1:14.10f} {2:14.10f} {3:14.10f}\n"
                                 .format(self.atm_names[i], self.pos_matr_ang[0, i], self.pos_matr_ang[1, i], self.pos_matr_ang[2, i]))
         
+        file_qe.close()
+        
         return 0
-
 
 
 
@@ -206,7 +207,8 @@ class QEWriter:
 
 '==========================================================================='
 class FileReader:
-    # Initializing the objects
+    '-----------------------------------------------------------------------'
+    # Initializing the instances
     def __init__(self, file_name, pseudo_cluster, pseudo_local, forc_conv_thr, nstep, nspin, ecutwfc, ecutrho, conv_thr, mixing_beta, dk, units):
         self.file_name      = file_name
         self.pseudo_cluster = pseudo_cluster
@@ -220,6 +222,7 @@ class FileReader:
         self.mixing_beta    = mixing_beta
         self.dk             = dk
         self.units          = units
+
 
 
     '-----------------------------------------------------------------------'
@@ -275,21 +278,26 @@ class FileReader:
                 writer.writing_input()
                 writer = QEWriter(qe_name, nat, vect_matr, atm_names, pos_matr_ang, 'local', self.pseudo_cluster, self.pseudo_local, self.forc_conv_thr, self.nstep, self.nspin, self.ecutwfc, self.ecutrho, self.conv_thr, self.mixing_beta, self.dk, self.units)
                 writer.writing_input()
-                    
+        
+        file.close()
         
         return cont_str
 
 
 
 
+
 '==========================================================================='
 class RunCreator:
+    '-----------------------------------------------------------------------'
+    # Initializing the instances
     def __init__(self, ont_str, time_exe, folder1_path, folder2_path, path_qe):
         self.cont_str     = cont_str
         self.time_exe     = time_exe
         self.folder1_path = folder1_path
         self.folder2_path = folder2_path
         self.path_qe      = path_qe
+    
     
     
     '-----------------------------------------------------------------------'
@@ -334,6 +342,7 @@ class RunCreator:
         os.chdir('../')
             
         return 0
+    
     
     
     '-----------------------------------------------------------------------'
@@ -382,8 +391,11 @@ class RunCreator:
             file_run.write("srun -n "+str(ntasks)+" pw.x -npools "+str(npools)+" -input "+id_file+".in > "+id_file+".out\n")
             file_run.write("\n")
             file_run.write("cp "+id_file+".out $DIR\n")
+            
+        file_run.close()
         
         return 0
+
 
 
     '-----------------------------------------------------------------------'
@@ -434,14 +446,61 @@ class RunCreator:
         os.chdir('../')
                 
         return 0
+
+
+
+
+
+'==========================================================================='
+class BashCreator:
+    '-----------------------------------------------------------------------'
+    # Initializing the instances
+    def __init__(self, db_file, bash_file, path_qe, ncpus):
+        self.db_file   = db_file
+        self.bash_file = bash_file
+        self.path_qe   = path_qe
+        self.ncpus     = ncpus
+    
+    
+    
+    '-----------------------------------------------------------------------'
+    # Method to create bash file to compile QE from local machine
+    def temp_bash(self):
+        bash_name = self.bash_file
         
+        with open(bash_name, 'w') as file_bash:
+            # Writing lines of bash file
+            file_bash.write("#!/bin/bash\n")
+            file_bash.write("\n")
+            
+            # Counting the number of times that 'Lattice' appears in the db_file 'cause this is equal to the number of structures
+            file_bash.write("nconf=$(grep -o 'Lattice=' "+self.db_file+" | wc -l)\n")
+            file_bash.write("\n")
+            
+            # Creating the 'run_and_echo' function in bash to run QE during 2 seconds and print in console the creation of output files.
+            file_bash.write("run_and_echo() {\n")
+            file_bash.write("timeout 2s "+self.path_qe+"pw.x < $1.in > $1.out; echo \"File $1.out generated\"\n")
+            file_bash.write("}\n")
+            file_bash.write("\n")
+            
+            # Exporting 'run_and_echo'
+            file_bash.write("export -f run_and_echo\n")
+            file_bash.write("\n")
+            
+            file_bash.write("seq 1 $nconf | parallel --will-cite --keep-order -j"+str(self.ncpus)+" run_and_echo {}\n")
+            
+        file_bash.close()
+        
+        return 0
 
 
 
 
-'-----------------------------------'
-'------------ MAIN CODE ------------'
-'-----------------------------------'
+
+
+'==========================================================================='
+'-------------------------------- MAIN CODE --------------------------------'
+'==========================================================================='
 if __name__ == "__main__":
     # Folders for saving files
     folder1_path = './cluster'
@@ -457,13 +516,22 @@ if __name__ == "__main__":
         else:
             print('Folders already exits!')
     
-    
     # File with db
     db_file = 'file_testing.xyz'
     
+    # Bash file to execute QE
+    bash_file = 'qe_exe.sh'
+    
+    # Number of cpus to RUN QE IN LOCAL MACHINE
+    ncpus = 8
+    
+    
+    #-----------------------------------------------------------------------#
+    #------------------------- QE input variables --------------------------#
+    #-----------------------------------------------------------------------#
     # paths to the psudopotential folder: pseudo_cluster and pseudo_local for the cluster and local machine respectively
     pseudo_cluster = '/linkhome/rech/genpii01/rmzn001/Pseudo'
-    pseudo_local   = '/Users/yosvany/Documents/Yosvany/PhD/HPC/Pseudo'
+    pseudo_local   = '/home/jdcreme/Documentos/Pseudo'
     
     # Path to the executable of QE in the local machine
     path_qe = '/opt/Softs/QE/qe-6.8/bin/'
@@ -487,6 +555,13 @@ if __name__ == "__main__":
     # Atomic units system
     units = 'crystal'
     
+    # Time execution of QE in cluster. Variable for the run files. Format hh:mm:ss
+    time_exe = '05:00:00'
+    
+    
+    #-----------------------------------------------------------------------#
+    #--------------------------- Reading database --------------------------#
+    #-----------------------------------------------------------------------#
     reader = FileReader(db_file, pseudo_cluster, pseudo_local, forc_conv_thr, nstep, nspin, ecutwfc, ecutrho, conv_thr, mixing_beta, dk, units)
     cont_str = reader.read_file()
     
@@ -494,13 +569,33 @@ if __name__ == "__main__":
     print('Number of strucutres:', cont_str)
     print('----------------------------------')
     
-    # Time execution of QE in cluster. Format hh:mm:ss
-    time_exe = '05:00:00'
+
+    #-----------------------------------------------------------------------#
+    #------------------------- Creating bash script ------------------------#
+    #-----------------------------------------------------------------------#    
+    # Changing the repository to create and execute the bash script in the local repository
+    os.chdir(folder2_path) 
+
+    bash = BashCreator(db_file, bash_file, path_qe, ncpus)
+    bash.temp_bash()
+     
+    # Executing command in console
+    command = "bash "+bash_file+""
+    
+    process = sbp.run(command, shell=True)
+    if process.returncode == 0:
+        print("The outputs were correctly generated")
+    else:
+        print("Error generating the outputs")
     
     
+    #-----------------------------------------------------------------------#
+    #-------------------------- Creating run files -------------------------#
+    #-----------------------------------------------------------------------# 
     runner = RunCreator(cont_str, time_exe, folder1_path, folder2_path, path_qe)
-    #runner.pwx_qe()
     runner.create_run()
+    print('----------------------------------------------------')
+    print(f" Memory used at the end: {memory_usage()} MB")
     
 
     
