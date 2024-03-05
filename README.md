@@ -1,5 +1,5 @@
 # ML_potential
 
-Reading daa base and creating input file for Quantum Espresso. 
-Running QE and determining numerical parameters fror the parallelization.
-Creating run files for submit calculations to cluster.
+It's reading the database and creating input files for Quantum Espresso. 
+It's running QE and determining numerical parameters for the parallelization.
+Creating run files for submitting calculations to cluster.
