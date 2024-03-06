@@ -10,6 +10,7 @@ import shutil
 import linecache as lnch
 import numpy as np
 import math as mt
+import psutil
 
 '-----------------------------------'
 '------------- CLASSES -------------'
@@ -401,7 +402,6 @@ class RunCreator:
     '-----------------------------------------------------------------------'
     # Method to create run files already parallelized
     def create_run(self):
-        os.chdir(self.folder2_path)       # Changing the repository to read the *.out files in the local repository
         
         # Pattertns to search in output files for the parallelization
         pattern1 = 'number of k points='
@@ -474,7 +474,7 @@ class BashCreator:
             file_bash.write("\n")
             
             # Counting the number of times that 'Lattice' appears in the db_file 'cause this is equal to the number of structures
-            file_bash.write("nconf=$(grep -o 'Lattice=' "+self.db_file+" | wc -l)\n")
+            file_bash.write("nconf=$(grep -o 'Lattice=' ../"+self.db_file+" | wc -l)\n")
             file_bash.write("\n")
             
             # Creating the 'run_and_echo' function in bash to run QE during 2 seconds and print in console the creation of output files.
@@ -517,7 +517,7 @@ if __name__ == "__main__":
             print('Folders already exits!')
     
     # File with db
-    db_file = 'file_testing.xyz'
+    db_file = 'train.xyz'
     
     # Bash file to execute QE
     bash_file = 'qe_exe.sh'
@@ -534,7 +534,8 @@ if __name__ == "__main__":
     pseudo_local   = '/home/jdcreme/Documentos/Pseudo'
     
     # Path to the executable of QE in the local machine
-    path_qe = '/opt/Softs/QE/qe-6.8/bin/'
+    #path_qe = '/opt/Softs/QE/qe-6.8/bin/'
+    path_qe=''
     
     # &control parameters
     forc_conv_thr = 1.0e-3
@@ -595,7 +596,8 @@ if __name__ == "__main__":
     runner = RunCreator(cont_str, time_exe, folder1_path, folder2_path, path_qe)
     runner.create_run()
     print('----------------------------------------------------')
-    print(f" Memory used at the end: {memory_usage()} MB")
+    print('Run files created correctly')
+    print('----------------------------------------------------')
     
 
     
