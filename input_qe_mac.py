@@ -481,7 +481,7 @@ class BashCreator:
             
             # Creating the 'run_and_echo' function in bash to run QE during 2 seconds and print in console the creation of output files.
             file_bash.write("run_and_echo() {\n")
-            file_bash.write(""+self.path_timeout+"timeout 2s "+self.path_qe+"pw.x < $1.in > $1.out 2> /dev/null; echo \"File $1.out generated\"\n")
+            file_bash.write(""+self.path_timeout+"timeout 2s "+self.path_qe+"pw.x < $1.in > $1.out; echo \"File $1.out generated\"\n")
             file_bash.write("}\n")
             file_bash.write("\n")
             
@@ -489,7 +489,7 @@ class BashCreator:
             file_bash.write("export -f run_and_echo\n")
             file_bash.write("\n")
             
-            file_bash.write("seq 1 $nconf | "+self.path_parallel+"parallel --will-cite --keep-order -j"+str(self.ncpus)+" run_and_echo {}\n")
+            file_bash.write("seq 1 $nconf | "+self.path_parallel+"parallel --will-cite --keep-order -j"+str(self.ncpus)+" run_and_echo {} 2>/dev/null\n")
             
         file_bash.close()
         
