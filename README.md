@@ -1,5 +1,6 @@
 # xyz2qe
-The main goal of this Python script is to split the database for any Machine Learning Potential (MLP) in the format `*.xyz` into their respective input files of [Quantum Espresso](https://www.quantum-espresso.org/) (QE).
+The main goal of this Python script is to split the database for any Machine Learning Potential (MLP) in the format `*.xyz` into their respective input files of [Quantum Espresso](https://www.quantum-espresso.org/) (QE).\
+The script executes QE locally for 2s to determine the number of _k-points_ and other considered parameters for the paralellization of the code in the Cluster.
 
 > [!IMPORTANT]  
 > **Requirements for using this script:**\
