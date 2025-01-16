@@ -6,6 +6,7 @@
 > `parallel` installed. It is used to run QE at the same time in different CPUs in our local machine.
 >
 > [!TIP]
+> test
 > ** Installing `timeout` and `parallel` in MacOS via MacPorts **
 > ```
 > sudo port install timeout
