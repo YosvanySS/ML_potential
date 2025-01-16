@@ -4,7 +4,7 @@ The main goal of this Python script is to split the database for any Machine Lea
 
 
 > [!IMPORTANT]  
-> <ins>**Requirements for using this script:**</ins>\
+> <ins>**Requirements:**</ins>\
 > `QE` installed. See [home page](https://www.quantum-espresso.org/) for downloading it.\
 > `timeout` installed. It kills QE's execution after a 2s in our local machine.\
 > `parallel` installed. It runs QE simultaneously on different CPUs in our local machine.
