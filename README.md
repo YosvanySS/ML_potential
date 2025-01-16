@@ -1,5 +1,5 @@
 # xyz2qe
-The main goal of this Python script is to split the database for any Machine Learning Potential (MLP) in the format `*.xyz` into their respective input files of [Quantum Espresso (QE)](https://www.quantum-espresso.org/). The script executes QE locally for 2 seconds to determine the number of _k-points_ and Fast Fourier Transform (FFT) coefficients in the Z direction, which are used for parallelizing the code in the Cluster.
+The main goal of this Python script is to split the database for any Machine Learning Potential (MLP) in the format `*.xyz` into their respective input files of [Quantum Espresso (QE)](https://www.quantum-espresso.org/). The script executes QE locally for 2 seconds to determine the number of _k-points_ and Fast Fourier Transform coefficients in the Z direction (FFTz), which are used for parallelizing the code in the Cluster.
 
 
 
