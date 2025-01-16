@@ -797,7 +797,7 @@ if __name__ == "__main__":
             print('Folders already exits!')
     
     # File with db
-    db_file = 'train_truc.xyz'
+    db_file = 'train.xyz'
     
     # Bash file to execute QE
     bash_file = 'qe_exe.sh'
