@@ -5,7 +5,7 @@ The script executes QE locally for 2s to determine the number of _k-points_ and 
 > [!IMPORTANT]  
 > **Requirements for using this script:**\
 > `timeout` installed. It is used to killed [QE](https://www.quantum-espresso.org/) after a while running in our local machine.\
-> `parallel` installed. It is used to run QE at the same time in different CPUs in our local machine.
+> `parallel` installed. It is used to run [QE](https://www.quantum-espresso.org/) at the same time in different CPUs in our local machine.
 
 > [!TIP]
 > 
